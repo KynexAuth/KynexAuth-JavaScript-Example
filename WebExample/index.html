@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KynexAuth · 3D Cybernetic Web Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070D;
+            --card-bg: rgba(11, 15, 25, 0.75);
+            --card-border: rgba(56, 189, 248, 0.25);
+            --neon-cyan: #38BDF8;
+            --neon-purple: #C084FC;
+            --neon-green: #4ADE80;
+            --neon-amber: #FBBF24;
+            --text-main: #F8FAFC;
+            --text-sub: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        /* 3D Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .cyber-card {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 40px 36px;
+            box-shadow: 
+                0 0 50px rgba(56, 189, 248, 0.15),
+                0 30px 60px -15px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: floatUp 0.6s ease-out;
+        }
+
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .card-glow-line {
+            position: absolute;
+            top: 0;
+            left: 15%;
+            right: 15%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-purple), transparent);
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        .cyber-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--neon-cyan);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+            animation: pulseDot 1.6s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #FFFFFF 20%, #7DD3FC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        .tabs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            background: rgba(5, 7, 13, 0.7);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 14px;
+            padding: 4px;
+            margin-bottom: 24px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            padding: 10px 4px;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(192, 132, 252, 0.25));
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            color: #FFFFFF;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #CBD5E1;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(5, 7, 13, 0.85);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+            background: rgba(8, 12, 22, 0.95);
+        }
+
+        .form-input::placeholder {
+            color: #475569;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #0284C7 0%, #6366F1 50%, #A855F7 100%);
+            border: none;
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.5);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert-box {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #FCA5A5;
+        }
+
+        .alert-success {
+            background: rgba(74, 222, 128, 0.15);
+            border: 1px solid rgba(74, 222, 128, 0.4);
+            color: #86EFAC;
+        }
+
+        /* Dashboard View */
+        .dash-view {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .hud-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .hud-item {
+            background: rgba(5, 7, 13, 0.85);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 14px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .hud-label {
+            font-size: 12px;
+            color: var(--text-sub);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .hud-val {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #FCA5A5;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.25);
+            color: #FFFFFF;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 11px;
+            color: #475569;
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+
+<div class="cyber-card">
+    <div class="card-glow-line"></div>
+
+    <!-- AUTH PORTAL VIEW -->
+    <div id="auth-view">
+        <div class="header">
+            <div class="cyber-badge">
+                <div class="pulse-dot"></div>
+                KYNEXAUTH · NODE.JS WEB APP
+            </div>
+            <h1 class="title">Cloud Authentication</h1>
+            <p class="subtitle">Protected JavaScript Web Portal</p>
+        </div>
+
+        <div id="alert-box" class="alert-box"></div>
+
+        <div class="tabs-grid">
+            <button class="tab-btn active" onclick="switchTab('login')">LOGIN</button>
+            <button class="tab-btn" onclick="switchTab('register')">REGISTER</button>
+            <button class="tab-btn" onclick="switchTab('license')">LICENSE</button>
+            <button class="tab-btn" onclick="switchTab('upgrade')">UPGRADE</button>
+        </div>
+
+        <!-- 1. LOGIN -->
+        <div id="tab-login" class="tab-pane active">
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="login-user" class="form-input" placeholder="Account username" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="login-pass" class="form-input" placeholder="••••••••••••" required>
+                </div>
+                <button type="submit" id="btn-login" class="submit-btn">Authorize Session →</button>
+            </form>
+        </div>
+
+        <!-- 2. REGISTER -->
+        <div id="tab-register" class="tab-pane">
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label class="form-label">Desired Username</label>
+                    <input type="text" id="reg-user" class="form-input" placeholder="Choose username" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="reg-pass" class="form-input" placeholder="Choose password" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">License Key</label>
+                    <input type="text" id="reg-key" class="form-input" placeholder="XXXX-XXXX-XXXX-XXXX" required>
+                </div>
+                <button type="submit" id="btn-reg" class="submit-btn">Activate New Account →</button>
+            </form>
+        </div>
+
+        <!-- 3. LICENSE -->
+        <div id="tab-license" class="tab-pane">
+            <form onsubmit="handleLicense(event)">
+                <div class="form-group">
+                    <label class="form-label">License Key</label>
+                    <input type="text" id="lic-key" class="form-input" placeholder="Paste license key" required>
+                </div>
+                <button type="submit" id="btn-lic" class="submit-btn">Fast Instant Login →</button>
+            </form>
+        </div>
+
+        <!-- 4. UPGRADE -->
+        <div id="tab-upgrade" class="tab-pane">
+            <form onsubmit="handleUpgrade(event)">
+                <div class="form-group">
+                    <label class="form-label">Account Username</label>
+                    <input type="text" id="upg-user" class="form-input" placeholder="Username to extend" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Renewal License Key</label>
+                    <input type="text" id="upg-key" class="form-input" placeholder="Renewal License Key" required>
+                </div>
+                <button type="submit" id="btn-upg" class="submit-btn">Extend Duration →</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="dash-view" class="dash-view">
+        <div class="header">
+            <div class="cyber-badge" style="color: var(--neon-green); border-color: rgba(74, 222, 128, 0.4);">
+                <div class="pulse-dot"></div>
+                SESSION VERIFIED & ACTIVE
+            </div>
+            <h1 class="title" id="dash-username">Welcome!</h1>
+            <p class="subtitle">Hardware binding validated · Access unlocked</p>
+        </div>
+
+        <div class="hud-grid">
+            <div class="hud-item">
+                <span class="hud-label">Account User</span>
+                <span class="hud-val" id="hud-user">-</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">Public IPv4 Node</span>
+                <span class="hud-val" id="hud-ip" style="color: var(--neon-amber);">-</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">Subscription Status</span>
+                <span class="hud-val" id="hud-plan" style="color: var(--neon-green);">VIP Active</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">Locked Device HWID</span>
+                <span class="hud-val" id="hud-hwid" style="font-size: 11px; color: #CBD5E1;">-</span>
+            </div>
+        </div>
+
+        <button onclick="handleLogout()" class="logout-btn">Terminate Session ⎋</button>
+    </div>
+
+    <div class="footer">
+        POWERED BY KYNEXAUTH CLOUD ENGINE
+    </div>
+</div>
+
+<script>
+    function showAlert(msg, type = 'error') {
+        const box = document.getElementById('alert-box');
+        box.className = `alert-box alert-${type}`;
+        box.textContent = msg;
+        box.style.display = 'block';
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+        const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.textContent.toLowerCase() === tabId);
+        if (btn) btn.classList.add('active');
+
+        const pane = document.getElementById('tab-' + tabId);
+        if (pane) pane.classList.add('active');
+    }
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-login');
+        btn.disabled = true;
+        btn.textContent = 'Verifying Session...';
+
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: document.getElementById('login-user').value.trim(),
+                    password: document.getElementById('login-pass').value.trim()
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                renderDashboard(data.user);
+            } else {
+                showAlert(data.message || 'Login failed.');
+            }
+        } catch (err) {
+            showAlert('Server connection error: ' + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Authorize Session →';
+        }
+    }
+
+    async function handleRegister(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-reg');
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: document.getElementById('reg-user').value.trim(),
+                    password: document.getElementById('reg-pass').value.trim(),
+                    licenseKey: document.getElementById('reg-key').value.trim()
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showAlert('Registration successful! Please login.', 'success');
+                switchTab('login');
+            } else {
+                showAlert(data.message || 'Registration failed.');
+            }
+        } catch (err) {
+            showAlert('Error: ' + err.message);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function handleLicense(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-lic');
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/api/license', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    licenseKey: document.getElementById('lic-key').value.trim()
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                renderDashboard(data.user);
+            } else {
+                showAlert(data.message || 'License verification failed.');
+            }
+        } catch (err) {
+            showAlert('Error: ' + err.message);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function handleUpgrade(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-upg');
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/api/upgrade', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: document.getElementById('upg-user').value.trim(),
+                    licenseKey: document.getElementById('upg-key').value.trim()
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showAlert('Subscription extended successfully! Please log in.', 'success');
+                switchTab('login');
+            } else {
+                showAlert(data.message || 'Upgrade failed.');
+            }
+        } catch (err) {
+            showAlert('Error: ' + err.message);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    function renderDashboard(user) {
+        document.getElementById('dash-username').textContent = `Welcome, ${user.username}!`;
+        document.getElementById('hud-user').textContent = user.username || '-';
+        document.getElementById('hud-ip').textContent = user.ip || '127.0.0.1';
+        document.getElementById('hud-hwid').textContent = user.hwid || 'Locked to Machine';
+
+        if (user.subscriptions && user.subscriptions.length > 0) {
+            const s = user.subscriptions[0];
+            document.getElementById('hud-plan').textContent = `${s.name || 'VIP'} (${s.expiry || 'Active'})`;
+        } else {
+            document.getElementById('hud-plan').textContent = 'VIP Lifetime';
+        }
+
+        document.getElementById('auth-view').style.display = 'none';
+        document.getElementById('dash-view').style.display = 'block';
+    }
+
+    async function handleLogout() {
+        await fetch('/api/logout', { method: 'POST' });
+        document.getElementById('dash-view').style.display = 'none';
+        document.getElementById('auth-view').style.display = 'block';
+        showAlert('Logged out safely.', 'success');
+    }
+
+    // -------------------------------------------------------------
+    // INTERACTIVE 3D PARTICLE MATRIX CANVAS
+    // -------------------------------------------------------------
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let mouse = { x: null, y: null, radius: 150 };
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.x;
+        mouse.y = e.y;
+    });
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 1;
+            this.vx = (Math.random() - 0.5) * 1.2;
+            this.vy = (Math.random() - 0.5) * 1.2;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+            if (mouse.x && mouse.y) {
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < mouse.radius) {
+                    this.x -= (dx / dist) * 2;
+                    this.y -= (dy / dist) * 2;
+                }
+            }
+        }
+        draw() {
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    for (let i = 0; i < 70; i++) particles.push(new Particle());
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].update();
+            particles[i].draw();
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 110) {
+                    ctx.strokeStyle = `rgba(56, 189, 248, ${0.15 * (1 - dist / 110)})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(animate);
+    }
+    animate();
+</script>
+
+</body>
+</html>

@@ -1,11 +1,11 @@
-# 🛡️ KynexAuth JavaScript (Node.js) SDK & Console Example
+# 🛡️ KynexAuth JavaScript (Node.js & Web) SDK & Examples
 
-[![Node.js](https://img.shields.io/badge/Node.js-16.0%2B%20%7C%2018.0%2B%20%7C%2020.0%2B%20%7C%2022.0%2B-green.svg)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-16.0%2B%20%7C%2018.0%20%7C%2020.0%20%7C%2022.0%2B-green.svg)](https://nodejs.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://microsoft.com/windows)
-[![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero%20(Pure%20Standard%20Library)-brightgreen.svg)]()
+[![Dependencies](https://img.shields.io/badge/Dependencies-Zero%20(Pure%20Native%20JS)-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Official, zero-dependency JavaScript / Node.js implementation for the **[KynexAuth](https://kynexauth.com)** authentication and licensing API. 100% compatible with the C#, C++, and Python specification.
+Official, zero-dependency JavaScript SDK, Cyberpunk Node.js CLI loader, and standalone 3D Web Authentication portal for the **[KynexAuth](https://kynexauth.com)** security API. 100% compatible with C#, C++, Python, and PHP SDK specifications.
 
 ---
 
@@ -13,12 +13,21 @@ Official, zero-dependency JavaScript / Node.js implementation for the **[KynexAu
 
 ```
 js Example/
-├── 📄 kynexauth.js     # Core JavaScript SDK Client Library (Zero external dependencies)
-├── 📄 index.js         # Cyberpunk-styled Console Loader application
-├── 📄 build_exe.bat    # 1-Click Standalone .EXE Compiler
-├── 📄 package.json     # Node.js project manifest
-├── 📄 .gitignore       # Standard git ignore file
-└── 📄 README.md        # Setup & Integration Documentation
+├── 📂 ConsoleExample/       # Cyberpunk Node.js CLI Loader & Standalone .EXE
+│   ├── 📄 kynexauth.js     # Core JavaScript SDK Client Library (Zero external dependencies)
+│   ├── 📄 index.js         # Cyberpunk-styled Console Loader application
+│   ├── 📄 build_exe.bat    # 1-Click Standalone Windows .EXE Compiler
+│   └── 📄 package.json     # Node.js project manifest
+│
+├── 📂 WebExample/           # 3D Holographic Web Application (Node.js Web Server)
+│   ├── 📄 kynexauth.js     # Core JavaScript SDK Client Library
+│   ├── 📄 server.js        # Zero-Dependency Node.js Web Server
+│   ├── 📄 index.html       # 3D Canvas Particle Web Portal UI
+│   └── 📄 start_web.bat    # 1-Click Web Application Launcher
+│
+├── 📄 package.json         # Root Node.js manifest
+├── 📄 .gitignore           # Standard git ignore file
+└── 📄 README.md            # Integration Documentation
 ```
 
 ---
@@ -36,8 +45,6 @@ js Example/
 
 ## ⚙️ Step 2: Configure Credentials in Code
 
-Open `index.js` and set your credentials:
-
 ```javascript
 const { KynexAuth } = require('./kynexauth');
 
@@ -54,41 +61,38 @@ const kynexAuth = new KynexAuth({
 
 ---
 
-## 🖥️ Running the Console Example
+## 🖥️ Option A: Running the Console Example
 
-1. Open your terminal in the `js Example` directory:
+1. Open your terminal in `ConsoleExample/`:
    ```bash
-   cd "js Example"
+   cd "js Example/ConsoleExample"
    ```
 2. Start the loader:
    ```bash
-   npm start
-   # or
    node index.js
    ```
-3. **Features:**
-   * Cyberpunk ANSI styling with rotating braille loading animation.
-   * `[1] LOGIN` — Authenticate using username and password.
-   * `[2] REGISTER` — Create a new account with a license key.
-   * `[3] UPGRADE` — Extend an existing user's subscription.
-   * `[4] LICENSE KEY ONLY` — Fast instant access via license key.
-   * Automatic **Windows User SID** (`S-1-5-21-...`) hardware ID detection.
-   * Background session watchdog monitoring.
+3. **Build to Standalone Windows `.EXE`:**
+   * Double-click **`build_exe.bat`** in `ConsoleExample/` to generate `dist/KynexAuth_Console.exe` which runs on any Windows machine without Node.js installed!
 
 ---
 
-## 📦 Compiling to Standalone Windows `.EXE`
+## 🌐 Option B: Running the 3D Web Application Example
 
-To convert your JavaScript / Node.js loader into a standalone single `.exe` binary that runs on any Windows PC without needing Node.js installed:
-
-1. Double-click **`build_exe.bat`** in the `js Example` folder.
-2. The compilation will complete and output the single executable to the **`dist/`** directory:
-   * **Console Binary:** `dist/KynexAuth_Console.exe`
-
-Alternatively, build manually using npx:
-```bash
-npx pkg -t node16-win-x64 index.js -o dist/KynexAuth_Console.exe
-```
+1. Open `WebExample/` directory:
+   ```bash
+   cd "js Example/WebExample"
+   ```
+2. Launch the web server:
+   * Double-click **`start_web.bat`** on Windows (starts Node.js web server and opens browser at `http://localhost:3000`).
+   * Or run manually:
+     ```bash
+     node server.js
+     ```
+3. **Features:**
+   * **Pure Node.js Backend Server (`server.js`)**: Powered by `kynexauth.js` with zero CORS restrictions.
+   * Interactive **3D Canvas Particle Network** reacting to mouse movements.
+   * Holographic Glassmorphism card with multi-tab interface (Login, Register, License Key, Upgrade).
+   * Real-time user HUD dashboard with real public IP and hardware ID.
 
 ---
 
@@ -96,43 +100,21 @@ npx pkg -t node16-win-x64 index.js -o dist/KynexAuth_Console.exe
 
 | Method | Description | Example Usage |
 | :--- | :--- | :--- |
-| `app.init()` | Initializes connection with server and retrieves session token. | `await app.init()` |
-| `app.login(username, password)` | Authenticates user credentials and binds HWID. | `await app.login("john", "pass123")` |
-| `app.register(username, password, key, email="")` | Creates new user account by redeeming license key. | `await app.register("john", "pass123", "KEY-XXXX")` |
-| `app.license(key)` | Authenticates using license key only. | `await app.license("KEY-XXXX")` |
-| `app.upgrade(username, key)` | Extends subscription duration for existing user. | `await app.upgrade("john", "KEY-XXXX")` |
-| `app.check()` | Verifies that session token is still valid. | `if (!await app.check()) process.exit(1)` |
-| `app.getvar(var_name)` | Fetches a secure server-side secret variable. | `const secret = await app.getvar("cheat_offset")` |
-| `app.setvar(var_name, var_data)` | Sets a server-side variable. | `await app.setvar("user_config", "data")` |
-| `app.log(message)` | Sends a security or activity log directly to the dashboard. | `await app.log("User initialized cheat")` |
-| `app.ban(reason)` | Instantly bans the current user and HWID. | `await app.ban("Memory tamper detected")` |
-| `app.webhook(id, params)` | Executes a server-side webhook securely. | `await app.webhook("12345", "arg=val")` |
-| `app.chatget(channel)` | Fetches messages from a chat channel. | `const msgs = await app.chatget("general")` |
-| `app.chatsend(message, channel)` | Sends a chat message to a channel. | `await app.chatsend("Hello!", "general")` |
-| `app.get_hwid()` | Returns the real Windows User SID (`S-1-5-...`). | `const sid = app.get_hwid()` |
-| `app.logout()` | Invalids and revokes the active session token. | `await app.logout()` |
+| `init()` | Establishes secure connection & session handshake | `await app.init();` |
+| `login(user, pass)` | Authenticates user and locks machine HWID | `await app.login("user", "pass");` |
+| `register(user, pass, key, email)` | Registers new account with a license key | `await app.register("user", "pass", "KEY", "email");` |
+| `license(key)` | Instant fast access via license key | `await app.license("KEY-XXXX");` |
+| `upgrade(user, key)` | Extends account subscription duration | `await app.upgrade("user", "KEY");` |
+| `check()` | Validates that current session token is alive | `await app.check();` |
+| `getvar(varId)` | Fetches a protected server-side secret variable | `const val = await app.getvar("secret");` |
+| `setvar(varId, val)` | Updates server-side variable value | `await app.setvar("key", "val");` |
+| `log(message)` | Transmits security log to dashboard | `await app.log("Sensitive area accessed");` |
+| `ban(reason)` | Bans current user and machine HWID | `await app.ban("Tampering detected");` |
+| `webhook(webId, params)` | Triggers server-side webhook | `await app.webhook("WH_ID", "param=1");` |
+| `get_hwid()` | Returns unique hardware ID (SID on Windows) | `const hwid = app.get_hwid();` |
+| `logout()` | Destroys active session token | `await app.logout();` |
 
 ---
 
-## 🔒 Implementing Your Protected Application Payload
-
-Execute your protected code immediately after authentication validation:
-
-```javascript
-if (KynexAuthApp.response.success) {
-    console.log("[+] Authentication Successful! Initializing protected payload...");
-    
-    // -------------------------------------------------------------
-    // PLACE YOUR MAIN SCRIPT / AUTOMATION / PAYLOAD HERE:
-    // -------------------------------------------------------------
-    // const cheat = require('./protectedModule');
-    // cheat.start();
-}
-```
-
----
-
-## 🛡️ Security Best Practices
-
-1. **Native HWID Binding**: Hardware IDs are automatically generated using native Win32 security APIs, matching the C#, C++, and Python authentication security model.
-2. **Session Heartbeat**: Keep the background session interval active to detect real-time user bans and license revocations.
+## 📄 License
+This SDK is released under the [MIT License](LICENSE).

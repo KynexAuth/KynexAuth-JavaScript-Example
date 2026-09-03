@@ -1,0 +1,18 @@
+{
+  "name": "kynexauth-js-example",
+  "version": "1.0.0",
+  "description": "Official JavaScript / Node.js SDK and Console Example for KynexAuth",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "kynexauth",
+    "authentication",
+    "licensing",
+    "hwid-lock",
+    "loader"
+  ],
+  "author": "KynexAuth",
+  "license": "MIT"
+}
